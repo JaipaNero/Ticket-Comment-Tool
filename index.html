@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fixed Comment Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand-blue: #006BEA;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .accordion-header {
+            transition: background-color 0.2s ease-in-out;
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+        }
+        .accordion-item.active .accordion-content {
+            max-height: 1000px; /* Large enough to fit content */
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .accordion-item.active .accordion-arrow {
+            transform: rotate(180deg);
+        }
+        .copy-btn {
+            background-color: #f3f4f6;
+            color: #374151;
+            transition: all 0.2s ease-in-out;
+        }
+        .copy-btn:hover {
+            background-color: #e5e7eb;
+        }
+        .copy-btn.copied {
+            background-color: #22c55e; /* Green-500 */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-white flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-white rounded-xl border border-gray-200 p-6 md:p-8">
+        
+        <div class="text-center mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Fixed Comment Generator</h1>
+            <p class="text-gray-500 mt-1">Quickly copy standard comments for your tickets.</p>
+        </div>
+
+        <!-- Accordion Container -->
+        <div id="comments-container" class="space-y-2">
+            <!-- Comments will be dynamically inserted here -->
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA ---
+        // This object holds all the standard comments, categorized by subject.
+        const fixedComments = {
+            "Education": [
+                "(SR: xxxxxxxx) [Solved/Unsolved] + [Describe Customer complaint] + [Solved: How did you solve it? / Unsolved: what did you tell the customer?]"
+            ],
+            "Smart Upgrade": [
+                "(SR: xxxxxxxx) Software update + [App/Network/Memory/Camera/Battery/Reboot/ etc] + comment"
+            ],
+            "Accessory Exchange": [
+                "(SR: xxxxxxxx) Cable USB A - USB Micro White | GH39-01801B",
+                "(SR: xxxxxxxx) Cable USB A - USB C | GH39-01949A",
+                "(SR: xxxxxxxx) Cable USB C - USB C | GH39-02077A",
+                "(SR: xxxxxxxx) Black Fast Charger USB A | GH44-02950A",
+                "(SR: xxxxxxxx) Black Super-Fast Charger USB C | GH44-03053A",
+                "(SR: xxxxxxxx) Standard Headset Black | GH59-15061A",
+                "(SR: xxxxxxxx) Standard Headset White | GH59-14338H",
+                "(SR: xxxxxxxx) AKG Headset AUX Black | GH59-14983A",
+                "(SR: xxxxxxxx) AKG Headset AUX White | GH59-14984A",
+                "(SR: xxxxxxxx) AKG Headset USB C | GH59-15252A",
+                "(SR: xxxxxxxx) Data Cable (NPC) | GH39-02089A",
+                "(SR: xxxxxxxx) Adaptor NP950 (NPC) | GH44-03165A",
+                "(SR: xxxxxxxx) Adaptor NP750 (NPC) | GH44-03114A"
+            ],
+            "Loyalty Solution": [
+                "(SR: xxxxxxxx) [Trade-Up / EPP Sale] + [New Model]"
+            ],
+            "Data Transfer/Backup": [
+                "(SR: xxxxxxxx) Smart Switch"
+            ],
+            "Leadpassing": [
+                "(SR: xxxxxxxx) Clearcoat Leadpassing"
+            ],
+            "Close With Other Reason": [
+                "(SR: xxxxxxxx) Reschedule: [new date] + [Reason]",
+                "(SR: xxxxxxxx) Paid Premium Service: Device health care 15,-",
+                "(SR: xxxxxxxx) Paid Premium Service: OOW buds cleaning 30,-",
+                "(SR: xxxxxxxx) Paid Premium Service: Data transfer 15,-"
+            ]
+        };
+
+        // --- DOM ELEMENTS ---
+        const commentsContainer = document.getElementById('comments-container');
+
+        // --- CORE LOGIC ---
+        function renderComments() {
+            commentsContainer.innerHTML = ''; // Clear existing content
+
+            for (const category in fixedComments) {
+                const accordionItem = document.createElement('div');
+                accordionItem.className = 'accordion-item border border-gray-200 rounded-lg';
+
+                const header = document.createElement('button');
+                header.className = 'accordion-header w-full flex justify-between items-center p-4 text-left font-semibold text-gray-700 hover:bg-gray-50';
+                header.innerHTML = `
+                    <span>${category}</span>
+                    <svg class="accordion-arrow w-5 h-5 transition-transform transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                `;
+
+                const content = document.createElement('div');
+                content.className = 'accordion-content px-4';
+                
+                const list = document.createElement('ul');
+                list.className = 'space-y-2';
+                
+                fixedComments[category].forEach(commentText => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'flex justify-between items-center p-3 bg-gray-50 rounded-md';
+                    
+                    const text = document.createElement('span');
+                    text.className = 'comment-text text-gray-800 text-sm flex-grow mr-4';
+                    text.textContent = commentText;
+
+                    const button = document.createElement('button');
+                    button.className = 'copy-btn font-semibold py-1 px-3 rounded-md text-sm flex-shrink-0';
+                    button.textContent = 'Copy';
+                    
+                    listItem.appendChild(text);
+                    listItem.appendChild(button);
+                    list.appendChild(listItem);
+                });
+
+                content.appendChild(list);
+                accordionItem.appendChild(header);
+                accordionItem.appendChild(content);
+                commentsContainer.appendChild(accordionItem);
+            }
+        }
+
+        function handleContainerClick(event) {
+            const target = event.target;
+
+            // Handle accordion toggle
+            const header = target.closest('.accordion-header');
+            if (header) {
+                const item = header.parentElement;
+                item.classList.toggle('active');
+            }
+
+            // Handle copy button click
+            const copyButton = target.closest('.copy-btn');
+            if (copyButton) {
+                const commentText = copyButton.previousElementSibling.textContent;
+                copyToClipboard(commentText, copyButton);
+            }
+        }
+
+        let activeCopyButton = null; // To track the button that was clicked
+
+        function copyToClipboard(text, button) {
+            // Reset the previous button if there was one
+            if (activeCopyButton && activeCopyButton !== button) {
+                activeCopyButton.textContent = 'Copy';
+                activeCopyButton.classList.remove('copied');
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                activeCopyButton = button;
+
+                setTimeout(() => {
+                    if (activeCopyButton === button) {
+                       button.textContent = 'Copy';
+                       button.classList.remove('copied');
+                       activeCopyButton = null;
+                    }
+                }, 2000);
+            }).catch(err => {
+                console.error('Could not copy text: ', err);
+            });
+        }
+
+        // --- EVENT LISTENERS ---
+        commentsContainer.addEventListener('click', handleContainerClick);
+
+        // --- STARTUP ---
+        renderComments();
+        // Open the first accordion item by default
+        if (commentsContainer.firstChild) {
+            commentsContainer.firstChild.classList.add('active');
+        }
+
+    </script>
+</body>
+</html>
